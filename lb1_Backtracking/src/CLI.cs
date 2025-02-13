@@ -24,11 +24,11 @@ public class CLI
             Вывести справку о доступных параметрах и завершить работу.
 
         -v, --visualize <filename>  
-            Выполнить визуализацию решения и записать её в файл filename.png.  
+            Выполнить визуализацию решения и записать её в файл filename.  
 
         -a, --analyze <filename>  
             Запустить анализ производительности (бенчмарк) алгоритма  
-            и записать график в файл filename.png.
+            и записать график в файл filename.
 
         -d, --debug  
             Запустить программу в режиме отладки с выводом подробной информации о ходе выполнения.
@@ -85,7 +85,7 @@ public class CLI
             }
             else
             {
-                throw new ArgumentException($"missing argument for {args[i]}");
+                throw new ArgumentException($"unknown option {args[i]}");
             }
         }
     }
