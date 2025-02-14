@@ -40,6 +40,10 @@ public class Visualizer
 
 	private void SaveBitmapToPng(SKBitmap bitmap, string filename)
 	{
+		if (!Path.HasExtension(filename))
+    	{
+        	filename += ".png";
+    	}
 		var filePath = Path.Combine(Environment.CurrentDirectory, filename);
 		using (var image = SKImage.FromBitmap(bitmap))
 		using (var data = image.Encode(SKEncodedImageFormat.Png, 100))

@@ -24,8 +24,14 @@ public class Analyzer
 		plt.Title("Growth of Iterations Count on Prime Sizes");
 		plt.XLabel("Grid Size");
 		plt.YLabel("Iterations Count");
+		
+		if (!Path.HasExtension(filename))
+    	{
+        	filename += ".png";
+    	}
 
-		plt.Save(filename, 600, 400);
-		Console.WriteLine($"Graph saved to {filename}");
+		var filepath = Path.Combine(Environment.CurrentDirectory, filename);
+		plt.Save(filepath, 600, 400);
+		Console.WriteLine($"Graph saved to {filepath}");
 	}
 }
