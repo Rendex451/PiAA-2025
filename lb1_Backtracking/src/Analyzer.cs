@@ -32,6 +32,6 @@ public class Analyzer
 
 		var filepath = Path.Combine(Environment.CurrentDirectory, filename);
 		plt.Save(filepath, 600, 400);
-		Console.WriteLine($"Graph saved to {filepath}");
+		CLI.Log($"Graph saved to {filepath}", ConsoleColor.Green);
 	}
 }

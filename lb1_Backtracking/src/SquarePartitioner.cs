@@ -1,18 +1,23 @@
+using lb1_Backtracking;
+
 public class SquarePartitioner
 {
-    private bool _debugMode = false;
     public Tuple<int, int, List<int[]>> FindOptimalPartition(int gridSize, bool debugMode)
     {
-        _debugMode = debugMode;
+        if (debugMode)
+            CLI.Log($"[Start] Finding optimal partition for grid size: {gridSize}", ConsoleColor.Green);
         
         int operationCounter = 0;
         int squareSize;
         int newGridSize = ScaleSquareSize(gridSize, out squareSize);
         int bestCount = 2 * newGridSize + 1;
-        List<Square> squares = PlaceInitialSquares(newGridSize);
+        List<Square> squares = PlaceInitialSquares(newGridSize, debugMode);
         List<Square> bestSolution = new List<Square>();
         int initialOccupiedArea = squares[0].Size * squares[0].Size + 2 * squares[1].Size * squares[1].Size;
         int startX = squares[2].Bottom, startY = squares[2].X;
+        
+        if (debugMode) 
+            CLI.Log($"[Init] Grid scaled to: {newGridSize}, Square size: {squareSize}", ConsoleColor.Yellow);
         
         Backtrack(
             squares, 
@@ -22,7 +27,8 @@ public class SquarePartitioner
             startX, startY, 
             newGridSize, 
             ref bestCount, 
-            ref operationCounter);
+            ref operationCounter,
+            debugMode);
 
         List<int[]> formattedSolution = bestSolution
             .Select(square => 
@@ -30,7 +36,9 @@ public class SquarePartitioner
             )
             .ToList();
         
-        _debugMode = false;
+        if (debugMode) 
+            CLI.Log($"[End] Best partition found with {bestCount} squares in {operationCounter} operations.", ConsoleColor.Green);
+        
         return Tuple.Create(bestCount, operationCounter, formattedSolution);
     }
     
@@ -48,16 +56,18 @@ public class SquarePartitioner
         int startX, int startY,
         int gridSize,
         ref int bestCount,
-        ref int operationCounter
+        ref int operationCounter,
+        bool debugMode
     ) 
     {
-        if (_debugMode)
-            Console.WriteLine("[New Backtrack Iteration]");
-        
         operationCounter++;
+        if (debugMode) 
+            CLI.Log($"[Backtrack #{operationCounter}] Current count: {currentCount}, Occupied: {occupiedArea}/{gridSize * gridSize}", 
+                ConsoleColor.White);
+        
         if (occupiedArea == gridSize * gridSize)
         {
-            UpdateBestSolution(squares, bestSolution, currentCount, ref bestCount);
+            UpdateBestSolution(squares, bestSolution, currentCount, ref bestCount, debugMode);
             return;
         }
 
@@ -69,18 +79,20 @@ public class SquarePartitioner
                     continue;
 
                 int maxSize = CalculateMaxSquareSize(squares, x, y, gridSize);
-                if (maxSize <= 0)
+                if (maxSize <= 0) 
                     continue;
 
-                TryPlacingSquares(squares,
-                    bestSolution,
-                    occupiedArea,
-                    currentCount,
-                    x, y,
-                    gridSize,
-                    maxSize,
-                    ref bestCount,
-                    ref operationCounter);
+                TryPlacingSquares(
+                    squares, 
+                    bestSolution, 
+                    occupiedArea, 
+                    currentCount, 
+                    x, y, 
+                    gridSize, 
+                    maxSize, 
+                    ref bestCount, 
+                    ref operationCounter, 
+                    debugMode);
                 
                 return;
             }
@@ -88,13 +100,20 @@ public class SquarePartitioner
         }
     }
     
-    private void UpdateBestSolution(List<Square> squares, List<Square> bestSolution, int currentCount, ref int bestCount)
+    private void UpdateBestSolution(
+        List<Square> squares, 
+        List<Square> bestSolution, 
+        int currentCount, 
+        ref int bestCount, 
+        bool debugMode)
     {
         if (currentCount < bestCount)
         {
             bestCount = currentCount;
             bestSolution.Clear();
             bestSolution.AddRange(squares);
+            if (debugMode) 
+                CLI.Log($"[Update] New best solution with {bestCount} squares.", ConsoleColor.Green);
         }
     }
     
@@ -122,7 +141,8 @@ public class SquarePartitioner
         int gridSize,
         int maxSize,
         ref int bestCount,
-        ref int operationCounter)
+        ref int operationCounter,
+        bool debugMode)
     {
         for (int size = maxSize; size >= 1; size--)
         {
@@ -130,37 +150,49 @@ public class SquarePartitioner
             var newOccupiedArea = occupiedArea + size * size;
         
             squares.Add(newSquare);
-            if (_debugMode)
-                Console.WriteLine($"[New Square ({newSquare.X} {newSquare.Y} {newSquare.Size})]");
+            if (debugMode) 
+                CLI.Log($"[Place] Square ({x}, {y}, {size}) added.", ConsoleColor.Blue);
+
             if (newOccupiedArea == gridSize * gridSize)
             {
-                UpdateBestSolution(squares, bestSolution, currentCount + 1, ref bestCount);
+                UpdateBestSolution(
+                    squares, 
+                    bestSolution, 
+                    currentCount + 1, 
+                    ref bestCount, 
+                    debugMode);
             }
-            else if (currentCount + 1 < bestCount)
+            else if (currentCount + 1 < bestCount) // Оптимизация
             {
-                Backtrack(squares,
-                    bestSolution,
-                    newOccupiedArea,
-                    currentCount + 1,
-                    x, y, gridSize,
-                    ref bestCount,
-                    ref operationCounter);
+                Backtrack(
+                    squares, 
+                    bestSolution, 
+                    newOccupiedArea, 
+                    currentCount + 1, 
+                    x, y, 
+                    gridSize, 
+                    ref bestCount, 
+                    ref operationCounter, 
+                    debugMode);
             }
         
             squares.RemoveAt(squares.Count - 1);
+            if (debugMode) 
+                CLI.Log($"[Remove] Square ({x}, {y}, {size}) removed.", ConsoleColor.Red);
         }
     }
 
-    private List<Square> PlaceInitialSquares(int gridSize)
+    private List<Square> PlaceInitialSquares(int gridSize, bool debugMode)
     {
         int mainSquareSize = (gridSize + 1) / 2;
         int subSquaresSize = gridSize / 2;
-        
-        if (_debugMode)
+
+        if (debugMode)
         {
-            Console.WriteLine($"[New Square (0 0 {mainSquareSize})]");
-            Console.WriteLine($"[New Square (0 {mainSquareSize} {subSquaresSize})]");
-            Console.WriteLine($"[New Square ({mainSquareSize} 0 {subSquaresSize})]");
+            CLI.Log("[Init] Placing initial squares.", ConsoleColor.Yellow);
+            CLI.Log($"[Place] Square (0, 0, {mainSquareSize}) added.", ConsoleColor.Blue);
+            CLI.Log($"[Place] Square (0, {mainSquareSize}, {subSquaresSize}) added.", ConsoleColor.Blue);
+            CLI.Log($"[Place] Square ({mainSquareSize}, 0, {subSquaresSize}) added.", ConsoleColor.Blue);
         }
         
         return new List<Square>

@@ -47,8 +47,8 @@ public class CLI
 	{
 		_flagActions = new Dictionary<string, Action>
 		{
-			{"-h", PrintHelp},
-			{"--help", PrintHelp},
+			{"-h",() => Console.WriteLine(Help)},
+			{"--help", () => Console.WriteLine(Help)},
 			{"-d", () => _debugMode = true},
 			{"--debug", () => _debugMode = true}
 		};
@@ -61,10 +61,13 @@ public class CLI
 			{"--analyze", filename => _graphFile = filename}
 		};
 	}
-	
-	private void PrintHello() => Console.WriteLine(Hello);
-	private void PrintHelp() => Console.WriteLine(Help);
-	private void PrintSeeHelp() => Console.WriteLine(SeeHelp);
+
+	public static void Log(string message, ConsoleColor color = ConsoleColor.White)
+	{
+		Console.ForegroundColor = color;
+		Console.WriteLine(message);
+		Console.ResetColor();
+	}
 	
 	private void ParseArguments(string[] args)
 	{
@@ -100,15 +103,15 @@ public class CLI
 	
 	public void Run(string[] args)
 	{
-		PrintHello();
+		Console.WriteLine(Hello);
 		try
 		{
 			ParseArguments(args);
 		}
 		catch (Exception ex)
 		{
-			Console.WriteLine($"Error: {ex.Message}");
-			PrintSeeHelp();
+			Log($"Error: {ex.Message}", ConsoleColor.Red);
+			Console.WriteLine(SeeHelp);
 			return;
 		}
 
@@ -123,16 +126,16 @@ public class CLI
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error while analyzing: {ex.Message}");
+				Log($"Error while analyzing: {ex.Message}", ConsoleColor.Red);
 				return;
 			}
 		}
 
 		Console.Write("Enter grid size: ");
-		if (!int.TryParse(Console.ReadLine(), out int gridSize) || gridSize <= 0)
+		if (!int.TryParse(Console.ReadLine(), out int gridSize) || gridSize <= 1)
 		{
-			Console.WriteLine("Error: Grid size must be a natural number.");
-			PrintSeeHelp();
+			Log("Error: Grid size must be a natural number > 1.", ConsoleColor.Red);
+			Console.WriteLine(SeeHelp);
 			return;
 		}
 
@@ -158,7 +161,7 @@ public class CLI
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error while visualizing: {ex.Message}");
+				Log($"Error while visualizing: {ex.Message}", ConsoleColor.Red);
 			}
 		}
 	}

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using SkiaSharp;
 using System.Linq;
+using ScottPlot.TickGenerators;
 
 namespace lb1_Backtracking;
 
@@ -52,6 +53,6 @@ public class Visualizer
 			data.SaveTo(stream);
 		}
 		
-		Console.WriteLine($"Visualization saved to {filePath}");
+		CLI.Log($"Visualization saved to {filePath}", ConsoleColor.Green);
 	}
 }
