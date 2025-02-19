@@ -119,9 +119,10 @@ public class CLI
 		{
 			try
 			{
-				var analyzer = new Analyzer();
+				var analyzer = new PerformanceAnalyzer();
 				var sizes = new[] { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37 };
 				var experimentData = analyzer.Benchmark(sizes);
+				analyzer.BuildTable(sizes, experimentData);
 				analyzer.BuildGraph(sizes, experimentData, _graphFile);
 			}
 			catch (Exception ex)

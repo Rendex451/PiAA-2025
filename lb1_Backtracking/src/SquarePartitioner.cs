@@ -162,7 +162,7 @@ public class SquarePartitioner
                     ref bestCount, 
                     debugMode);
             }
-            else if (currentCount + 1 < bestCount) // Оптимизация
+            else if (currentCount + 1 < bestCount)
             {
                 Backtrack(
                     squares, 

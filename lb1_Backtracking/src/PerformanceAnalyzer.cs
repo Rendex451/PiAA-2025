@@ -1,6 +1,8 @@
+using Spectre.Console;
+
 namespace lb1_Backtracking;
 
-public class Analyzer
+public class PerformanceAnalyzer
 {
 	public int[] Benchmark(int[] sizes)
 	{
@@ -9,6 +11,24 @@ public class Analyzer
 			.Select(size => partitioner.FindOptimalPartition(size, false).Item2)
 			.ToArray();
 		return operations;
+	}
+
+	public void BuildTable(int[] sizes, int[] operations)
+	{
+		var table = new Table();
+		
+		table.AddColumn("Size");
+		table.AddColumn("Iterations count");
+		
+		for (int i = 0; i < sizes.Length; i++)
+		{
+			var size = sizes[i].ToString();
+			var ops = operations[i].ToString();
+            
+			table.AddRow(size, ops);
+		}
+		
+		AnsiConsole.Write(table);
 	}
 	
 	public void BuildGraph(int[] sizes, int[] operations, string filename)
