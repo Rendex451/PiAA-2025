@@ -41,6 +41,7 @@ public class PerformanceAnalyzer
 		var plt = new ScottPlot.Plot();
 
 		plt.Add.Scatter(sizes, operations);
+		
 		plt.Title("Growth of Iterations Count on Prime Sizes");
 		plt.XLabel("Grid Size");
 		plt.YLabel("Iterations Count");
