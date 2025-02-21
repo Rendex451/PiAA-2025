@@ -96,7 +96,7 @@ public class SquarePartitioner
                 
                 return;
             }
-            startY = 0;
+            startY = squares[2].Bottom;
         }
     }
     
@@ -151,7 +151,7 @@ public class SquarePartitioner
         
             squares.Add(newSquare);
             if (debugMode) 
-                CLI.Log($"[Place] Square ({x}, {y}, {size}) added.", ConsoleColor.Blue);
+                CLI.Log($"[Place] Square (X: {x}, Y: {y}, Size: {size}) added.", ConsoleColor.Blue);
 
             if (newOccupiedArea == gridSize * gridSize)
             {
@@ -175,10 +175,15 @@ public class SquarePartitioner
                     ref operationCounter, 
                     debugMode);
             }
+            else
+            {
+                if (debugMode)
+                    CLI.Log($"[Prune] Stopping branch: next count ({currentCount + 1}) >= best count ({bestCount})", ConsoleColor.Red);
+            }
         
             squares.RemoveAt(squares.Count - 1);
             if (debugMode) 
-                CLI.Log($"[Remove] Square ({x}, {y}, {size}) removed.", ConsoleColor.Red);
+                CLI.Log($"[Remove] Square (X: {x}, Y: {y}, Size: {size}) removed.", ConsoleColor.Red);
         }
     }
 
