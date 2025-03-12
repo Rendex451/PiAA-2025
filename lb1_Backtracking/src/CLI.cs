@@ -139,10 +139,11 @@ public class CLI
 			Console.WriteLine(SeeHelp);
 			return;
 		}
-
+		var startTime = DateTime.Now;
 		var partitioner = new SquarePartitioner();
 		var result = partitioner.FindOptimalPartition(gridSize, _debugMode);
-
+		var endTime = DateTime.Now;
+		var elapsedTime = endTime - startTime;
 		Console.WriteLine("---------------------------------------");
 		Console.WriteLine($"Minimum squares count: {result.Item1}");
 		Console.WriteLine($"Iterations count: {result.Item2}");
@@ -151,6 +152,7 @@ public class CLI
 		{
 			Console.WriteLine($"{1 + position[0]} {1 + position[1]} {position[2]}");
 		}
+		Console.WriteLine($"Execution time: {elapsedTime}");
 		Console.WriteLine("---------------------------------------");
 
 		if (_visualFile != null)

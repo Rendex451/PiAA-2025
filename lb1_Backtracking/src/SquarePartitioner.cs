@@ -178,7 +178,7 @@ public class SquarePartitioner
             else
             {
                 if (debugMode)
-                    CLI.Log($"[Prune] Stopping branch: next count ({currentCount + 1}) >= best count ({bestCount})", ConsoleColor.Red);
+                    CLI.Log($"[Cut] Stopping branch: next count ({currentCount + 1}) >= best count ({bestCount})", ConsoleColor.Red);
             }
         
             squares.RemoveAt(squares.Count - 1);
