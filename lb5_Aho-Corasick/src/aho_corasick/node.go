@@ -53,7 +53,6 @@ func (n *Node) getPath() string {
 	return string(path)
 }
 
-// Метод для вывода информации о вершине
 func (n *Node) String() string {
 	suffixVal := '0'
 	terminalVal := '0'
