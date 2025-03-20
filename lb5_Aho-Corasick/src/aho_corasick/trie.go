@@ -42,7 +42,7 @@ func (t *Trie) addWord(word string) {
 	}
 }
 
-func (t *Trie) genSuffixLinks() {
+func (t *Trie) generateLinks() {
 	queue := []*Node{t.root}
 	t.root.suffixLink = t.root
 

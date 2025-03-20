@@ -13,7 +13,7 @@ func generateTrie(patterns []string) *Trie {
 	for _, pattern := range patterns {
 		trie.addWord(pattern)
 	}
-	trie.genSuffixLinks()
+	trie.generateLinks()
 	if debug {
 		fmt.Println("Trie generation completed for patterns:", patterns)
 	}
@@ -43,7 +43,7 @@ func findMatchesOnTrie(text string, trie *Trie, matches map[string][]int) {
 			}
 			for current != trie.root && current.children[char] == nil {
 				if debug {
-					fmt.Printf("    From '%c' → '%c'\n",
+					fmt.Printf("    From '%c' -> '%c'\n",
 						current.value, current.suffixLink.value)
 				}
 				current = current.suffixLink
@@ -64,7 +64,7 @@ func findMatchesOnTrie(text string, trie *Trie, matches map[string][]int) {
 			pos := i - len(pattern) + 1
 			matches[pattern] = append(matches[pattern], pos)
 			if debug {
-				fmt.Printf("  → Found match '%s' at pos %d\n", pattern, pos)
+				fmt.Printf("  -> Found match '%s' at pos %d\n", pattern, pos)
 			}
 		}
 		for matchNode.terminalLink != nil && matchNode.terminalLink != trie.root {
@@ -73,7 +73,7 @@ func findMatchesOnTrie(text string, trie *Trie, matches map[string][]int) {
 			pos := i - len(pattern) + 1
 			matches[pattern] = append(matches[pattern], pos)
 			if debug {
-				fmt.Printf("  → Found via terminal '%s' at pos %d\n",
+				fmt.Printf("  -> Found via terminal '%s' at pos %d\n",
 					pattern, pos)
 			}
 		}
