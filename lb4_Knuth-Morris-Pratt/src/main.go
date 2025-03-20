@@ -20,8 +20,8 @@ func runPatternSearch(reader *bufio.Reader) {
 	pattern = strings.TrimSpace(pattern)
 	text = strings.TrimSpace(text)
 
-	fmt.Println("Result:")
 	occurrences := kmp.FindPatternOccurrences(text, pattern, false)
+	fmt.Println("Result:")
 	printOccurrences(occurrences)
 }
 
@@ -35,8 +35,9 @@ func runCyclicShiftCheck(reader *bufio.Reader) {
 	textA = strings.TrimSpace(textA)
 	textB = strings.TrimSpace(textB)
 
+	res := kmp.IsCyclicShift(textA, textB)
 	fmt.Println("Result:")
-	fmt.Println(kmp.IsCyclicShift(textA, textB))
+	fmt.Println(res)
 }
 
 func printOccurrences(occurrences []int) {
@@ -61,6 +62,7 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	if *debugMode {
+		fmt.Println("Debug mode enabled")
 		kmp.EnableDebug()
 	}
 
