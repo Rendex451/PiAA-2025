@@ -15,18 +15,21 @@ func EnableDebug() {
 	DEBUG = true
 }
 
-func findPrefixFunction(pattern string) []int {
+func calculatePrefixFunction(pattern string) []int {
 	pi := make([]int, len(pattern))
 	j := 0
 
 	if DEBUG {
-		fmt.Printf("%s[PrefixFunc]%s Computing prefix function for pattern: %s\n", COLOR_YELLOW, COLOR_RESET, pattern)
-		fmt.Printf("%s[PrefixFunc]%s Initialized pi: %v\n", COLOR_YELLOW, COLOR_RESET, pi)
+		fmt.Printf("%s[PrefixFunc]%s Computing prefix function for pattern: %s\n",
+			COLOR_YELLOW, COLOR_RESET, pattern)
+		fmt.Printf("%s[PrefixFunc]%s Initialized pi: %v\n",
+			COLOR_YELLOW, COLOR_RESET, pi)
 	}
 
 	for i := 1; i < len(pattern); i++ {
 		if DEBUG {
-			fmt.Printf("%s[PrefixFunc]%s i=%d, character: %c, j=%d\n", COLOR_YELLOW, COLOR_RESET, i, pattern[i], j)
+			fmt.Printf("%s[PrefixFunc]%s i=%d, character: %c, j=%d\n",
+				COLOR_YELLOW, COLOR_RESET, i, pattern[i], j)
 		}
 
 		for j > 0 && pattern[i] != pattern[j] {
@@ -48,7 +51,8 @@ func findPrefixFunction(pattern string) []int {
 	}
 
 	if DEBUG {
-		fmt.Printf("%s[PrefixFunc]%s Final prefix function: %v\n", COLOR_YELLOW, COLOR_RESET, pi)
+		fmt.Printf("%s[PrefixFunc]%s Final prefix function: %v\n",
+			COLOR_YELLOW, COLOR_RESET, pi)
 	}
 
 	return pi
@@ -64,17 +68,19 @@ func FindPatternOccurrences(text, pattern string, firstOnly bool) []int {
 	}
 
 	occurrences := []int{}
-	pi := findPrefixFunction(pattern)
+	pi := calculatePrefixFunction(pattern)
 
 	if DEBUG {
 		fmt.Printf("%s[Search]%s Searching for occurrences of pattern '%s' in text '%s'\n",
 			COLOR_GREEN, COLOR_RESET, pattern, text)
-		fmt.Printf("%s[Search]%s Using prefix function: %v\n", COLOR_GREEN, COLOR_RESET, pi)
+		fmt.Printf("%s[Search]%s Using prefix function: %v\n",
+			COLOR_GREEN, COLOR_RESET, pi)
 	}
 
 	for i, j := 0, 0; i < len(text); i++ {
 		if DEBUG {
-			fmt.Printf("%s[Search]%s i=%d, text character: %c, j=%d\n", COLOR_GREEN, COLOR_RESET, i, text[i], j)
+			fmt.Printf("%s[Search]%s i=%d, text character: %c, j=%d\n",
+				COLOR_GREEN, COLOR_RESET, i, text[i], j)
 		}
 
 		for j > 0 && text[i] != pattern[j] {
@@ -97,23 +103,27 @@ func FindPatternOccurrences(text, pattern string, firstOnly bool) []int {
 			occ := i - j + 1
 			occurrences = append(occurrences, occ)
 			if DEBUG {
-				fmt.Printf("%s[Search]%s Found occurrence at position %d\n", COLOR_GREEN, COLOR_RESET, occ)
+				fmt.Printf("%s[Search]%s Found occurrence at position %d\n",
+					COLOR_GREEN, COLOR_RESET, occ)
 			}
 			if firstOnly {
 				if DEBUG {
-					fmt.Printf("%s[Search]%s Returning first occurrence: %v\n", COLOR_GREEN, COLOR_RESET, occurrences)
+					fmt.Printf("%s[Search]%s Returning first occurrence: %v\n",
+						COLOR_GREEN, COLOR_RESET, occurrences)
 				}
 				return occurrences
 			}
 			j = pi[j-1]
 			if DEBUG {
-				fmt.Printf("%s[Search]%s Continuing search, rolling back j to %d\n", COLOR_GREEN, COLOR_RESET, j)
+				fmt.Printf("%s[Search]%s Continuing search, rolling back j to %d\n",
+					COLOR_GREEN, COLOR_RESET, j)
 			}
 		}
 	}
 
 	if DEBUG {
-		fmt.Printf("%s[Search]%s All occurrences: %v\n", COLOR_GREEN, COLOR_RESET, occurrences)
+		fmt.Printf("%s[Search]%s All occurrences: %v\n",
+			COLOR_GREEN, COLOR_RESET, occurrences)
 	}
 	return occurrences
 }
@@ -129,22 +139,27 @@ func IsCyclicShift(text, pattern string) int {
 
 	text += text
 	if DEBUG {
-		fmt.Printf("%s[CyclicCheck]%s Checking cyclic shift\n", COLOR_BLUE, COLOR_RESET)
-		fmt.Printf("%s[CyclicCheck]%s Doubled text: %s\n", COLOR_BLUE, COLOR_RESET, text)
-		fmt.Printf("%s[CyclicCheck]%s pattern: %s\n", COLOR_BLUE, COLOR_RESET, pattern)
+		fmt.Printf("%s[CyclicCheck]%s Checking cyclic shift\n",
+			COLOR_BLUE, COLOR_RESET)
+		fmt.Printf("%s[CyclicCheck]%s Doubled text: %s\n",
+			COLOR_BLUE, COLOR_RESET, text)
+		fmt.Printf("%s[CyclicCheck]%s pattern: %s\n",
+			COLOR_BLUE, COLOR_RESET, pattern)
 	}
 
 	occurrences := FindPatternOccurrences(text, pattern, true)
 
 	if len(occurrences) > 0 {
 		if DEBUG {
-			fmt.Printf("%s[CyclicCheck]%s Found cyclic shift at position %d\n", COLOR_BLUE, COLOR_RESET, occurrences[0])
+			fmt.Printf("%s[CyclicCheck]%s Found cyclic shift at position %d\n",
+				COLOR_BLUE, COLOR_RESET, occurrences[0])
 		}
 		return occurrences[0]
 	}
 
 	if DEBUG {
-		fmt.Printf("%s[CyclicCheck]%s Cyclic shift not found\n", COLOR_BLUE, COLOR_RESET)
+		fmt.Printf("%s[CyclicCheck]%s Cyclic shift not found\n",
+			COLOR_BLUE, COLOR_RESET)
 	}
 	return -1
 }
