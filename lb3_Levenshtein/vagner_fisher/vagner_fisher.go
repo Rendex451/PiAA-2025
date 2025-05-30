@@ -35,25 +35,93 @@ type SpecialRunes struct {
 	Insert  rune
 }
 
-func buildPath(n, m int, opCosts *OperationCosts, ops [][]rune, dp [][]int) string {
+func buildPath(n, m int, opCosts *OperationCosts, ops [][]rune, dp [][]int, s1, s2 string, specRunes *SpecialRunes, log *logger.Logger) string {
 	var path []rune
-	i, j := 0, 0
-	for i < n || j < m {
-		if i < n && j < m && ops[i+1][j+1] == Match {
+	i, j := n, m
+
+	if log != nil {
+		log.LogMsg("BuildPath", fmt.Sprintf("Start backtracking from (%d, %d)", i, j),
+			logger.ColorCyan)
+	}
+
+	for i > 0 || j > 0 {
+		if i > 0 && j > 0 && ops[i][j] == Match {
 			path = append(path, Match)
-			i++
-			j++
-		} else if j < m && (i == n || dp[i][j+1]+opCosts.Insert == dp[i][j]) {
-			path = append(path, Insert)
-			j++
-		} else if i < n && (j == m || dp[i+1][j]+opCosts.Delete == dp[i][j]) {
-			path = append(path, Delete)
-			i++
-		} else {
+			if log != nil {
+				log.LogMsg("BuildPath", fmt.Sprintf("Match at (%d, %d): %c == %c", i, j, s1[i-1], s2[j-1]),
+					logger.ColorGreen)
+			}
+			i--
+			j--
+		} else if i > 0 && j > 0 && ops[i][j] == Replace {
 			path = append(path, Replace)
-			i++
-			j++
+			if log != nil {
+				log.LogMsg("BuildPath", fmt.Sprintf("Replace at (%d, %d): %c -> %c", i, j, s1[i-1], s2[j-1]),
+					logger.ColorYellow)
+			}
+			i--
+			j--
+		} else if j > 0 && ops[i][j] == Insert {
+			path = append(path, Insert)
+			if log != nil {
+				log.LogMsg("BuildPath", fmt.Sprintf("Insert at (%d, %d): %c", i, j, s2[j-1]),
+					logger.ColorBlue)
+			}
+			j--
+		} else if i > 0 && ops[i][j] == Delete {
+			path = append(path, Delete)
+			if log != nil {
+				log.LogMsg("BuildPath", fmt.Sprintf("Delete at (%d, %d): %c", i, j, s1[i-1]),
+					logger.ColorRed)
+			}
+			i--
+		} else {
+			replaceCost := opCosts.Replace
+			if i > 0 && j > 0 && rune(s1[i-1]) == specRunes.Replace {
+				replaceCost = opCosts.SpecialReplace
+			}
+
+			insertCost := opCosts.Insert
+			if j > 0 && rune(s2[j-1]) == specRunes.Insert {
+				insertCost = opCosts.SpecialInsert
+			}
+
+			replaceTotal := dp[i-1][j-1] + replaceCost
+			insertTotal := dp[i][j-1] + insertCost
+			deleteTotal := dp[i-1][j] + opCosts.Delete
+
+			minOp, minCost := Replace, replaceTotal
+			if insertTotal < minCost {
+				minOp, minCost = Insert, insertTotal
+			}
+			if deleteTotal < minCost {
+				minOp, minCost = Delete, deleteTotal
+			}
+
+			path = append(path, minOp)
+			if log != nil {
+				log.LogMsg("BuildPath", fmt.Sprintf("Fallback at (%d, %d): chose %c (replace=%d, insert=%d, delete=%d)", i, j, minOp, replaceTotal, insertTotal, deleteTotal),
+					logger.ColorWhite)
+			}
+
+			switch minOp {
+			case Replace:
+				i--
+				j--
+			case Insert:
+				j--
+			case Delete:
+				i--
+			}
 		}
+	}
+
+	for k := 0; k < len(path)/2; k++ {
+		path[k], path[len(path)-1-k] = path[len(path)-1-k], path[k]
+	}
+
+	if log != nil {
+		log.LogMsg("BuildPath", fmt.Sprintf("Final path: %s", string(path)), logger.ColorGreen)
 	}
 
 	return string(path)
@@ -150,7 +218,7 @@ func FindLevenshteinDistance(s1, s2 string, opCosts *OperationCosts, specRunes *
 	log.LogCostMatrix("Final DP", dp, logger.ColorRed)
 	log.LogRuneMatrix("Final Ops", ops, logger.ColorBlue)
 
-	path := buildPath(n, m, opCosts, ops, dp)
+	path := buildPath(n, m, opCosts, ops, dp, s1, s2, specRunes, log)
 	log.LogMsg("Result", fmt.Sprintf("Final distance: %d, Path: %s", dp[n][m], path),
 		logger.ColorGreen)
 
