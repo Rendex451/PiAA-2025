@@ -81,7 +81,8 @@ def tsp_2_approx(graph, start, n, logger):
 
 
 def read_input():
-    start = int(input())
+    start = int(input("Введите стартовую вершину: "))
+    print("Введите матрицу весов:")
     graph = []
     first_row = list(map(float, input().split()))
     graph.append(first_row)
@@ -104,9 +105,8 @@ def main():
 
     length, path = tsp_2_approx(graph, start, n, logger)
 
-    print(f"{length:.2f}")
-    print(" ".join(map(str, path)))
-
+    print("Стоимость пути:", f"{length:.2f}")
+    print("Путь:", " ".join(map(str, path)))
 
 if __name__ == "__main__":
     main()
