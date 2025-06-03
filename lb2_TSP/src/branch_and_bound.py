@@ -1,24 +1,26 @@
 import heapq
+import random
 import sys
 from argparse import ArgumentParser
+from typing import List, Tuple, Optional
 
 
 class DebugLogger:
-    def __init__(self, debug=False):
+    def __init__(self, debug: bool = False) -> None:
         self.debug = debug
 
-    def log(self, message):
+    def log(self, message: str) -> None:
         if self.debug:
             print(f"[DEBUG] {message}", file=sys.stderr)
 
-    def log_queue(self, pq):
+    def log_queue(self, pq: List[Tuple[float, float, int, List[int], List[bool]]]) -> None:
         if self.debug:
             print("\nТекущее состояние очереди приоритетов:", file=sys.stderr)
             for item in pq:
                 bound, cost, curr, path, visited = item
                 print(f"  bound={bound:.2f}, cost={cost:.2f}, vertex={curr}, path={path}", file=sys.stderr)
 
-    def log_bound_calculation(self, curr_vertex, visited, min_edges, bound):
+    def log_bound_calculation(self, curr_vertex: int, visited: List[bool], min_edges: List[List[float]], bound: float) -> None:
         if self.debug:
             print(f"\nРасчет нижней границы для вершины {curr_vertex}:", file=sys.stderr)
             print(f"Посещенные вершины: {visited}", file=sys.stderr)
@@ -27,7 +29,7 @@ class DebugLogger:
                 print(f"  Вершина {i}: {edges[0]:.2f} (и {edges[1]:.2f} если есть)", file=sys.stderr)
             print(f"Итоговая нижняя граница: {bound:.2f}", file=sys.stderr)
 
-    def log_new_node(self, path, cost, bound, best_cost):
+    def log_new_node(self, path: List[int], cost: float, bound: float, best_cost: float) -> None:
         if self.debug:
             print(f"\nОбработка узла:", file=sys.stderr)
             print(f"  Текущий путь: {' -> '.join(map(str, path))}", file=sys.stderr)
@@ -35,18 +37,18 @@ class DebugLogger:
             print(f"  Нижняя граница: {bound:.2f}", file=sys.stderr)
             print(f"  Лучшая известная стоимость: {best_cost:.2f}", file=sys.stderr)
 
-    def log_new_best(self, path, cost):
+    def log_new_best(self, path: List[int], cost: float) -> None:
         if self.debug:
             print("\nНайден новый лучший путь!", file=sys.stderr)
             print(f"  Путь: {' -> '.join(map(str, path))}", file=sys.stderr)
             print(f"  Стоимость: {cost:.2f}", file=sys.stderr)
 
-    def log_skip(self, vertex, new_cost, best_cost):
+    def log_skip(self, vertex: int, new_cost: float, best_cost: float) -> None:
         if self.debug:
             print(f"  Пропуск вершины {vertex}: {new_cost:.2f} >= {best_cost:.2f}", file=sys.stderr)
 
 
-def get_lower_bound(graph, visited, curr_vertex, n, logger):
+def get_lower_bound(graph: List[List[float]], visited: List[bool], curr_vertex: int, n: int, logger: DebugLogger) -> float:
     if sum(visited) == n:
         return graph[curr_vertex][0]
 
@@ -59,17 +61,18 @@ def get_lower_bound(graph, visited, curr_vertex, n, logger):
         edges.sort()
         min_edges.append(edges[:2] if len(edges) >= 2 else [edges[0], float('inf')])
 
-    bound += min_edges[curr_vertex][0]
+    bound += min_edges[curr_vertex][0]  # наименьшая стоимость ребра, которое можно использовать
+                                        # для перехода из текущей вершины в следующую допустимую вершину
 
     for v in remaining:
-        bound += min_edges[v][0]
+        bound += min_edges[v][0] # добавляем минимальные рёбра оставшихся непосещённых вершин
 
     logger.log_bound_calculation(curr_vertex, visited, min_edges, bound)
 
     return bound
 
 
-def tsp_branch_and_bound(n, graph, logger):
+def tsp_branch_and_bound(n: int, graph: List[List[float]], logger: DebugLogger) -> Tuple[float, Optional[List[int]]]:
     visited = [False] * n
     visited[0] = True
     pq = [(0, 0, 0, [0], visited)]
@@ -113,15 +116,37 @@ def tsp_branch_and_bound(n, graph, logger):
 
     return best_cost, best_path
 
+def generate_random_graph(n: int, min_cost: int = 1, max_cost: int = 100) -> list[list[float]]:
+    graph = []
+    for i in range(n):
+        row = []
+        for j in range(n):
+            if i == j:
+                row.append(-1)
+            else:
+                row.append(random.randint(min_cost, max_cost))
+        graph.append(row)
 
-def main():
+    with open ("matrix.txt", "w") as file:
+        for row in graph:
+            file.write(" ".join(map(str, row)) + "\n")
+
+    return graph
+
+
+def main() -> None:
     parser = ArgumentParser()
     parser.add_argument('-debug', action='store_true', help='Включить отладочный вывод')
+    parser.add_argument('-random', action='store_true', help='Сгенерировать случайную матрицу')
     args = parser.parse_args()
 
     n = int(input("Введите колличество городов: "))
-    print("Введите матрицу стоимостей: ")
-    graph = [list(map(float, input().split())) for _ in range(n)]
+    if args.random:
+        graph = generate_random_graph(n)
+    else:
+        print("Введите матрицу стоимостей: ")
+        graph = [list(map(float, input().split())) for _ in range(n)]
+
     logger = DebugLogger(debug=args.debug)
 
     total_cost, path = tsp_branch_and_bound(n, graph, logger)
@@ -129,6 +154,7 @@ def main():
     print("\nИтоговый результат:")
     print("Посещённые города:", " ".join(map(str, path)))
     print("Стоимость пути:", total_cost)
+
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,6 @@
+import random
 import sys
+import math
 from argparse import ArgumentParser
 from heapq import heappush, heappop
 
@@ -94,14 +96,42 @@ def read_input():
 
     return start, graph, n
 
+def generate_euclidean_matrix(points):
+    n = len(points)
+    matrix = [[0.0] * n for _ in range(n)]
+    
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                matrix[i][j] = 0.0
+            else:
+                x1, y1 = points[i]
+                x2, y2 = points[j]
+                distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+                matrix[i][j] = distance
+                matrix[j][i] = distance
+
+    with open ("euclidean_matrix.txt", "w") as file:
+        for row in matrix:
+            file.write(" ".join(map(str, row)) + "\n")
+    
+    return matrix
+
 
 def main():
     parser = ArgumentParser()
     parser.add_argument('-debug', action='store_true', help='Включить отладочный вывод')
+    parser.add_argument('-random', action='store_true', help='Сгенерировать случайную матрицу')
     args = parser.parse_args()
 
     logger = DebugLogger(args.debug)
-    start, graph, n = read_input()
+    if args.random:
+        n = int(input("Введите колличество городов: "))
+        points = [(random.uniform(0, 100), random.uniform(0, 100)) for _ in range(n)]
+        graph = generate_euclidean_matrix(points)
+        start = int(input(f"Введите стартовую вершину (от 0 до {n - 1}): "))
+    else:
+        start, graph, n = read_input()
 
     length, path = tsp_2_approx(graph, start, n, logger)
 
