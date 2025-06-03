@@ -20,13 +20,13 @@ class DebugLogger:
                 bound, cost, curr, path, visited = item
                 print(f"  bound={bound:.2f}, cost={cost:.2f}, vertex={curr}, path={path}", file=sys.stderr)
 
-    def log_bound_calculation(self, curr_vertex: int, visited: List[bool], min_edges: List[List[float]], bound: float) -> None:
+    def log_bound_calculation(self, curr_vertex: int, visited: List[bool], min_edges: List[float], bound: float) -> None:
         if self.debug:
             print(f"\nРасчет нижней границы для вершины {curr_vertex}:", file=sys.stderr)
             print(f"Посещенные вершины: {visited}", file=sys.stderr)
             print("Минимальные ребра для каждой вершины:", file=sys.stderr)
             for i, edges in enumerate(min_edges):
-                print(f"  Вершина {i}: {edges[0]:.2f} (и {edges[1]:.2f} если есть)", file=sys.stderr)
+                print(f"  Вершина {i}: {edges:.2f}", file=sys.stderr)
             print(f"Итоговая нижняя граница: {bound:.2f}", file=sys.stderr)
 
     def log_new_node(self, path: List[int], cost: float, bound: float, best_cost: float) -> None:
@@ -58,14 +58,13 @@ def get_lower_bound(graph: List[List[float]], visited: List[bool], curr_vertex: 
     min_edges = []
     for v in range(n):
         edges = [graph[v][u] for u in range(n) if graph[v][u] != -1 and (not visited[u] or u == 0)]
-        edges.sort()
-        min_edges.append(edges[:2] if len(edges) >= 2 else [edges[0], float('inf')])
+        min_edges.append(min(edges))
 
-    bound += min_edges[curr_vertex][0]  # наименьшая стоимость ребра, которое можно использовать
-                                        # для перехода из текущей вершины в следующую допустимую вершину
+    bound += min_edges[curr_vertex] # наименьшая стоимость ребра, которое можно использовать
+                                    # для перехода из текущей вершины в следующую допустимую вершину
 
     for v in remaining:
-        bound += min_edges[v][0] # добавляем минимальные рёбра оставшихся непосещённых вершин
+        bound += min_edges[v] # добавляем минимальные рёбра оставшихся непосещённых вершин
 
     logger.log_bound_calculation(curr_vertex, visited, min_edges, bound)
 
